@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"os"
-	"os/exec"
-
+	"net/http"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -12,7 +12,20 @@ type Filepath struct {
 	errorPath string
 }
 
+type TestResponse struct {
+	ID string `json:"id"`
+	Response string `json:"Title"`
+}
+
+var response = []TestResponse {
+	{ID: "1", Response: "Test Response"}
+}
+
 func testingFunc(filePath Filepath, s string) {
+	if err := os.MkdirAll(filePath.errorPath, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
 	f, err := os.Create(filePath.errorPath + "/Dat.txt")
 	if err != nil {
 		log.Fatalf("Fatal error creating file %s\n", err)
@@ -30,11 +43,11 @@ func testingFunc(filePath Filepath, s string) {
 
 }
 
-func main() {
+func getTestRoute(c *gin.Context) {
+	c.IndentJSON(http.StatusOK, response)
+}
 
-	//initalize bash
-	cmd := exec.Command("/bin/sh", "./init.sh")
-	cmd.Run()
+func main() {
 
 	//load the file paths
 	err := godotenv.Load(".env")
@@ -45,6 +58,10 @@ func main() {
 	errorFromEnv := os.Getenv("Error_File")
 
 	filepath := Filepath{errorFromEnv}
-	testingFunc(filepath, "testingString")
+	testingFunc(filepath, "testingString 2")
 
+	//build the rest api
+	router := gin.Default()
+	router.Get("/test", getTestRoute)
+	router.Run("localhost:8080")
 }
