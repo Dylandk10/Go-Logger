@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"net/http"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -18,7 +19,7 @@ type TestResponse struct {
 }
 
 var response = []TestResponse {
-	{ID: "1", Response: "Test Response"}
+	{ID: "1", Response: "Test Response"},
 }
 
 func testingFunc(filePath Filepath, s string) {
@@ -40,11 +41,11 @@ func testingFunc(filePath Filepath, s string) {
 	if err2 != nil {
 		log.Fatalf("Error with writing data %s\n", err2)
 	}
-
+	fmt.Println("Ran testFunc")
 }
 
 func getTestRoute(c *gin.Context) {
-	c.IndentJSON(http.StatusOK, response)
+	c.IndentedJSON(http.StatusOK, response)
 }
 
 func main() {
@@ -62,6 +63,6 @@ func main() {
 
 	//build the rest api
 	router := gin.Default()
-	router.Get("/test", getTestRoute)
+	router.GET("/test", getTestRoute)
 	router.Run("localhost:8080")
 }
