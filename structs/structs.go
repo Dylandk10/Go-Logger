@@ -3,7 +3,9 @@ package structs
 //to show file paths for logging
 type Filepath struct {
 	ErrorPath string
-	UserPath string
+	HttpError string
+	ValidationError string
+	FileOperationError string
 }
 
 //post chat request

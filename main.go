@@ -15,11 +15,12 @@ import (
 
 //get the chat message and return it
 func postChat(c *gin.Context) {
+	errorType := ErrorType() //handle errors from errorHandler.go
 	id := c.PostForm("ID")
 	text := c.PostForm("Text")
-	fmt.Println(text)
+
 	if ValidatePostChat(id, text) {
-		fmt.Println("Error bad request rejected by validator")
+		HandleError(errorType.validationError)
 		c.String(http.StatusBadRequest, "Error missing post data")
 	} else {
 		chatResponse := structs.ChatResponse{ID: id, Text: text}
@@ -38,7 +39,6 @@ func main() {
 	}
 
 	port := os.Getenv("Port")
-
 	//testing routes
 	//testRoute.TestingFunc(&filepath, "testingString 2")
 
