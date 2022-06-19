@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-	//"net/http"
+	"net/http"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -12,8 +12,19 @@ import (
 
 )
 
-func getChat(c *gin.Context) {
-	
+
+//get the chat message and return it
+func postChat(c *gin.Context) {
+	id := c.PostForm("ID")
+	text := c.PostForm("Text")
+	fmt.Println(text)
+	if len(id) == 0 || len(text) == 0 {
+		log.Fatalf("bad request missing form Data")
+		c.String(http.StatusBadRequest, "Error missing post data")
+	}
+
+	chatResponse := structs.ChatResponse{ID: id, Text: text}
+	c.IndentedJSON(http.StatusCreated, chatResponse)
 }
 
 
@@ -26,12 +37,10 @@ func main() {
 		log.Fatalln("Error loading env file")
 	}
 
-	errorPathFromEnv := os.Getenv("Error_Path")
-	userPathFromEnv := os.Getenv("User_Path")
+	port := os.Getenv("Port")
 
-	//test the routes
-	filepath := structs.Filepath{ErrorPath: errorPathFromEnv, UserPath: userPathFromEnv}
-	testRoute.TestingFunc(&filepath, "testingString 2")
+	//testing routes
+	//testRoute.TestingFunc(&filepath, "testingString 2")
 
 
 
@@ -42,7 +51,7 @@ func main() {
 	router.GET("/test", testRoute.GetTestRoute)
 
 	//real paths 
-	router.GET("/chat", getChat)
+	router.POST("/chat", postChat)
 	router.Run("localhost:8080")
-	fmt.Println("Server running on port: 8080")
+	fmt.Printf("Server running on port: %s\n", port)
 }
