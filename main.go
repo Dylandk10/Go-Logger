@@ -18,13 +18,13 @@ func postChat(c *gin.Context) {
 	id := c.PostForm("ID")
 	text := c.PostForm("Text")
 	fmt.Println(text)
-	if len(id) == 0 || len(text) == 0 {
-		log.Fatalf("bad request missing form Data")
+	if ValidatePostChat(id, text) {
+		fmt.Println("Error bad request rejected by validator")
 		c.String(http.StatusBadRequest, "Error missing post data")
+	} else {
+		chatResponse := structs.ChatResponse{ID: id, Text: text}
+		c.IndentedJSON(http.StatusCreated, chatResponse)
 	}
-
-	chatResponse := structs.ChatResponse{ID: id, Text: text}
-	c.IndentedJSON(http.StatusCreated, chatResponse)
 }
 
 
