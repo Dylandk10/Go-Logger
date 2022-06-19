@@ -3,51 +3,21 @@ package main
 import (
 	"log"
 	"os"
-	"net/http"
+	//"net/http"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"example.test/structs"
+	"example.test/testRoute"
+
 )
 
-type Filepath struct {
-	errorPath string
+func getChat(c *gin.Context) {
+	
 }
 
-type TestResponse struct {
-	ID string `json:"id"`
-	Response string `json:"Title"`
-}
 
-var response = []TestResponse {
-	{ID: "1", Response: "Test Response"},
-}
-
-func testingFunc(filePath Filepath, s string) {
-	if err := os.MkdirAll(filePath.errorPath, os.ModePerm); err != nil {
-		log.Fatal(err)
-	}
-
-	f, err := os.Create(filePath.errorPath + "/Dat.txt")
-	if err != nil {
-		log.Fatalf("Fatal error creating file %s\n", err)
-	}
-
-	defer f.Close()
-
-	writeData := []byte(s)
-
-	_, err2 := f.Write(writeData)
-
-	if err2 != nil {
-		log.Fatalf("Error with writing data %s\n", err2)
-	}
-	fmt.Println("Ran testFunc")
-}
-
-func getTestRoute(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, response)
-}
-
+//main to set path varibales from env and activate the listener
 func main() {
 
 	//load the file paths
@@ -56,13 +26,23 @@ func main() {
 		log.Fatalln("Error loading env file")
 	}
 
-	errorFromEnv := os.Getenv("Error_File")
+	errorPathFromEnv := os.Getenv("Error_Path")
+	userPathFromEnv := os.Getenv("User_Path")
 
-	filepath := Filepath{errorFromEnv}
-	testingFunc(filepath, "testingString 2")
+	//test the routes
+	filepath := structs.Filepath{ErrorPath: errorPathFromEnv, UserPath: userPathFromEnv}
+	testRoute.TestingFunc(&filepath, "testingString 2")
+
+
+
 
 	//build the rest api
 	router := gin.Default()
-	router.GET("/test", getTestRoute)
+	//test path 
+	router.GET("/test", testRoute.GetTestRoute)
+
+	//real paths 
+	router.GET("/chat", getChat)
 	router.Run("localhost:8080")
+	fmt.Println("Server running on port: 8080")
 }
